@@ -5,50 +5,185 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Will you be my Valentine?</title>
     <style>
-        /* ... (resto de los estilos permanecen igual) ... */
-        
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            background: linear-gradient(0deg, 
+                rgba(0,0,20,0.9), 
+                rgba(0,0,50,0.8)), 
+                url('/api/placeholder/1920/1080') no-repeat center center fixed;
+            background-size: cover;
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            box-sizing: border-box;
+            color: white;
+        }
+        .container {
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            background: rgba(0,0,0,0.6);
+            padding: 20px;
+            border-radius: 15px;
+            backdrop-filter: blur(5px);
+        }
+        .heart {
+            color: red;
+            font-size: min(80px, 15vw);
+            animation: pulse 1.5s infinite;
+            margin: 20px 0;
+        }
+        .question {
+            font-size: min(24px, 6vw);
+            margin: 20px;
+            color: #ff69b4;
+            font-weight: bold;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+        .buttons {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+        button {
+            padding: 15px 30px;
+            font-size: min(18px, 5vw);
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            min-width: 120px;
+        }
+        #yesBtn {
+            background-color: #ff4d6d;
+            color: white;
+        }
+        #yesBtn:hover {
+            transform: scale(1.1);
+            background-color: #ff1493;
+        }
+        #noBtn {
+            background-color: #ffffff;
+            color: #ff4d6d;
+        }
         .message {
             font-size: min(20px, 5vw);
             margin-top: 20px;
-            color: white;
+            color: #ff69b4;
             display: none;
             padding: 20px;
-            background: linear-gradient(145deg, 
-                rgba(255, 102, 159, 0.95), 
-                rgba(238, 66, 102, 0.95));
-            border: 2px solid rgba(255, 255, 255, 0.3);
+            background-color: rgba(255,255,255,0.9);
             border-radius: 15px;
             animation: fadeIn 0.5s;
-            box-shadow: 0 4px 15px rgba(255, 20, 147, 0.4);
-            text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.2);
-            position: relative;
-            overflow: hidden;
         }
-
-        .message::before {
-            content: '';
-            position: absolute;
+        .city-lights {
+            position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(45deg,
-                rgba(255, 255, 255, 0.1),
-                rgba(255, 255, 255, 0.05));
+            width: 100%;
+            height: 100%;
             pointer-events: none;
+            z-index: -1;
         }
-
-        .message ❤️ {
-            font-size: 1.2em;
-            animation: pulse 1.5s infinite;
+        .light {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: yellow;
+            border-radius: 50%;
+            animation: twinkle 1.5s infinite alternate;
+        }
+        .icons-container {
+            display: flex;
+            justify-content: space-around;
+            margin: 20px 0;
+        }
+        .icon {
+            font-size: 2em;
+            animation: float 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+            100% { transform: scale(1); }
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes twinkle {
+            0% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        @keyframes float {
+            0% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0); }
         }
     </style>
 </head>
 <body>
-    <!-- ... (resto del HTML permanece igual) ... -->
-    
+    <div class="city-lights" id="cityLights"></div>
+    <div class="container">
+        <div class="icons-container">
+            <span class="icon">🗼</span> <!-- Torre de Tokio -->
+            <span class="icon">🗼</span> <!-- Torre Eiffel -->
+        </div>
+        <div class="heart">❤️</div>
+        <div class="question">Will you be my Valentine?</div>
+        <div class="buttons">
+            <button id="yesBtn">Yes</button>
+            <button id="noBtn">No</button>
+        </div>
+        <div class="message" id="responseMessage"></div>
+    </div>
+
     <script>
-        // ... (resto del JavaScript permanece igual) ...
+        // Crear luces de la ciudad
+        function createCityLights() {
+            const cityLights = document.getElementById('cityLights');
+            for(let i = 0; i < 100; i++) {
+                const light = document.createElement('div');
+                light.className = 'light';
+                light.style.left = Math.random() * 100 + 'vw';
+                light.style.top = Math.random() * 100 + 'vh';
+                light.style.animationDelay = Math.random() * 2 + 's';
+                cityLights.appendChild(light);
+            }
+        }
+
+        createCityLights();
+
+        let noCount = 0;
+        const noBtn = document.getElementById('noBtn');
+        const yesBtn = document.getElementById('yesBtn');
+        const message = document.getElementById('responseMessage');
+
+        noBtn.addEventListener('click', (e) => {
+            const buttonWidth = noBtn.offsetWidth;
+            const buttonHeight = noBtn.offsetHeight;
+            const maxX = window.innerWidth - buttonWidth;
+            const maxY = window.innerHeight - buttonHeight;
+            
+            const randomX = Math.max(0, Math.min(maxX, Math.random() * maxX));
+            const randomY = Math.max(0, Math.min(maxY, Math.random() * maxY));
+            
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = randomX + 'px';
+            noBtn.style.top = randomY + 'px';
+            
+            noCount++;
+            if (noCount > 5) {
+                noBtn.style.display = 'none';
+            }
+        });
 
         yesBtn.addEventListener('click', () => {
             message.style.display = 'block';
